@@ -23,7 +23,6 @@ class NYTimesAPI
     /**
      * @param RequestInterface $request
      * @return ResponseInterface|null
-     * @throws \Psr\Cache\InvalidArgumentException
      */
     public function execute(RequestInterface $request): ?ResponseInterface
     {
@@ -39,12 +38,17 @@ class NYTimesAPI
                 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             ];
 
+            if (!empty($request->getRequestBody())) {
+                $opt[CURLOPT_CUSTOMREQUEST] = "POST";
+                $opt[CURLOPT_POSTFIELDS] = http_build_query($request->getRequestBody());
+            }
+
             curl_setopt_array($curl, $opt);
             $response = curl_exec($curl);
             curl_close($curl);
 
             return ResponseFactory::prepareResponse($response, $request);
-        }catch (\Exception $exception) {
+        } catch (\Exception $exception) {
             return new ErrorResponse($exception->getMessage());
         }
     }

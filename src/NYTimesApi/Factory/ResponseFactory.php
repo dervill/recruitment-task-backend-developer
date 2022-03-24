@@ -8,25 +8,22 @@ use App\NYTimesApi\Response\ResponseInterface;
 
 class ResponseFactory
 {
+    /**
+     * Create response class depends on name of request class
+     * @param string $response
+     * @param RequestInterface $request
+     * @return ResponseInterface
+     */
     public static function prepareResponse(
         string $response,
         RequestInterface $request,
     ): ResponseInterface {
         try {
             $type = 'App\NYTimesApi\Response\\'.(new \ReflectionClass($request))->getShortName();
-            // @codeCoverageIgnoreStart
-        } catch (\Exception $e) {
-            return new ErrorResponse($e->getMessage());
-        }
-        // @codeCoverageIgnoreEnd
-
-        try {
             $handler = new $type($response);
-            // @codeCoverageIgnoreStart
         } catch (\Exception $e) {
             return new ErrorResponse($e->getMessage());
         }
-        // @codeCoverageIgnoreEnd
 
         return $handler;
     }

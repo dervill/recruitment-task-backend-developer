@@ -6,21 +6,20 @@ use App\NYTimesApi\Response\node\Article;
 
 class Articles extends AbstractResponse
 {
-    public array $articles = [];
+    private array $articles = [];
 
-    public function __construct(string $apiData)
+    /**
+     * @return array|null
+     */
+    public function getArticles(): ?array
     {
-        parent::__construct($apiData);
-
-        if(!empty($this->arrayData['response']['docs'])) {
-            foreach ($this->arrayData['response']['docs'] as $item) {
-                $this->articles[] = new Article($item);
+        if(empty($this->articles)) {
+            if(!empty($this->arrayData['response']['docs'])) {
+                foreach ($this->arrayData['response']['docs'] as $item) {
+                    $this->articles[] = new Article($item);
+                }
             }
         }
-    }
-
-    public function getArticles(int $limit, int $offset = 0): ?array
-    {
-        return array_slice($this->articles, $offset, $limit);
+        return $this->articles;
     }
 }

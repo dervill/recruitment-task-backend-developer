@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Services\CheckHeaders;
 use App\Services\NYTimesArticles;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -14,13 +15,15 @@ class ArticlesController extends AbstractController
     /**
      * @Route("/nytimes/{query}", name="app_nytime_articles_search")
      */
-    public function search(NYTimesArticles $NYTimesArticles, ?string $query = null): Response
+    public function search(Request $request, NYTimesArticles $NYTimesArticles, string $query = ''): Response
     {
-        $NYTimesArticles->setQueryToFind($query ?? '');
-        $articles  = $NYTimesArticles->getArticles();
+        if($query !== '' && !CheckHeaders::isApiKeyValid($request->headers->get('API-KEY'))) {
+            return new JsonResponse('Unauthorized', 401);
+        }
 
-        echo '<pre>';
-        print_r($articles);exit;
+        $NYTimesArticles->setFindPhrase($query);
+        $articles = $NYTimesArticles->getArticles();
+
         return new JsonResponse($articles);
     }
 }

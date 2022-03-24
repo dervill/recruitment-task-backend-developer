@@ -11,6 +11,4 @@ class ErrorResponse extends AbstractResponse
         parent::__construct('');
         $this->errorMessage = $message;
     }
-
-
 }
